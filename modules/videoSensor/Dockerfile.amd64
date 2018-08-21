@@ -1,0 +1,28 @@
+FROM ubuntu:xenial
+
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libcurl4-openssl-dev git python-pip libboost-python-dev && \
+    rm -rf /var/lib/apt/lists/* 
+
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends wget libssl-dev libusb-1.0-0-dev pkg-config libgtk-3-dev libglfw3-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN wget -N https://github.com/IntelRealSense/librealsense/blob/master/config/99-realsense-libusb.rules
+RUN mkdir -p /etc/udev/rules.d
+RUN cp 99-realsense-libusb.rules /etc/udev/rules.d/ 
+
+COPY . .
+
+RUN wget -N https://raw.githubusercontent.com/chuanqi305/MobileNet-SSD/master/MobileNetSSD_deploy.prototxt
+RUN wget -N http://realsense-hw-public.s3.amazonaws.com/rs-tests/TestData/MobileNetSSD_deploy.caffemodel
+
+RUN useradd -ms /bin/bash moduleuser
+USER moduleuser
+
+CMD [ "python", "-u", "./main.py" ]

@@ -1,0 +1,4 @@
+azure-iothub-device-client==1.4.0.0b3
+pyrealsense2
+opencv-python
+numpy
